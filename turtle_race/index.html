@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Turtle Race</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <style>
+        .turtle {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+        }
+        #raceTrack {
+            position: relative;
+            width: 800px;
+            height: 400px;
+            border: 1px solid black;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Turtle Race</h1>
+            <form id="betForm" class="box">
+                <div class="field"></div>
+                    <label class="label" for="bet">On which turtle do you bet? ("Red", "Orange", "Yellow", "Green", "Blue", "Indigo", "Violet"):</label>
+                    <div class="control">
+                        <input class="input" type="text" id="bet" name="bet" required>
+                    </div>
+                </div>
+                <div class="control">
+                    <button class="button is-primary" type="submit">Submit</button>
+                </div>
+            </form>
+            <div id="raceTrack">
+                <img src="red_turtle.png" class="turtle" id="Red" style="top: 50px; left: 0;">
+                <img src="orange_turtle.png" class="turtle" id="Orange" style="top: 100px; left: 0;">
+                <img src="yellow_turtle.png" class="turtle" id="Yellow" style="top: 150px; left: 0;">
+                <img src="green_turtle.png" class="turtle" id="Green" style="top: 200px; left: 0;">
+                <img src="blue_turtle.png" class="turtle" id="Blue" style="top: 250px; left: 0;">
+                <img src="indigo_turtle.png" class="turtle" id="Indigo" style="top: 300px; left: 0;">
+                <img src="violet_turtle.png" class="turtle" id="Violet" style="top: 350px; left: 0;">
+            </div>
+            <p id="result" class="notification is-info"></p>
+        </div>
+    </section>
+    <script>
+        const rainbowColors = ["Red", "Orange", "Yellow", "Green", "Blue", "Indigo", "Violet"];
+        const turtles = rainbowColors.map(color => document.getElementById(color));
+        const raceTrack = document.getElementById('raceTrack');
+        const result = document.getElementById('result');
+
+        document.getElementById('betForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const playersBet = document.getElementById('bet').value.trim().capitalize();
+            if (!rainbowColors.includes(playersBet)) {
+                result.textContent = `Invalid bet. Please choose from: ${rainbowColors.join(", ")}.`;
+                return;
+            }
+            initialize(turtles);
+            const winner = await race(turtles);
+            if (playersBet === winner) {
+                result.textContent = `Your bet was ${playersBet}. You won!`;
+            } else {
+                result.textContent = `Your bet was ${playersBet}. ${winner} won. You lose :(`;
+            }
+        });
+
+        function initialize(turtlez) {
+            turtlez.forEach(turtle => {
+                turtle.style.left = '0px';
+            });
+        }
+
+        function race(turtlez) {
+            return new Promise(resolve => {
+                const interval = setInterval(() => {
+                    turtlez.forEach(turtle => {
+                        const currentLeft = parseInt(turtle.style.left, 10);
+                        const newLeft = currentLeft + Math.floor(Math.random() * 20);
+                        turtle.style.left = `${newLeft}px`;
+                        if (newLeft >= raceTrack.clientWidth - turtle.clientWidth) {
+                            clearInterval(interval);
+                            resolve(turtle.id);
+                        }
+                    });
+                }, 100);
+            });
+        }
+
+        String.prototype.capitalize = function() {
+            return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
+        };
+    </script>
+</body>
+</html>
